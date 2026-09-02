@@ -1,4 +1,4 @@
-# M2: Proof of Concept
+# M2: Core Employee MVP
 
 ## Goal
 
