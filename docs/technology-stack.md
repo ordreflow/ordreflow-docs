@@ -164,4 +164,4 @@ The final hosting decision can wait, but a reachable test deployment should be m
 - Same domain versus separate frontend and API domains
 - CORS configuration for local and deployed environments
 - Exact order, task, and time-entry data model
-- Whether the POC needs to be reachable outside the company network
+

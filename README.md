@@ -11,6 +11,7 @@ This repository contains project-wide documentation for OrdreFlow, the internal 
 ## Documentation Structure
 
 - [`docs/technology-stack.md`](docs/technology-stack.md): current technology decisions, alternatives, and open decisions
+- [`docs/task-planning-and-backlog.md`](docs/task-planning-and-backlog.md): issue creation, Project usage, backlog, and parent/child issue rules
 - [`milestones/M0-inception-and-foundation.md`](milestones/M0-inception-and-foundation.md): project and technical foundation
 - [`milestones/M1-proof-of-concept.md`](milestones/M1-proof-of-concept.md): first end-to-end working slice
 - [`milestones/M2-core-employee-mvp.md`](milestones/M2-core-employee-mvp.md): core mobile employee functionality
