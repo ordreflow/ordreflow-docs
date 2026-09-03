@@ -43,4 +43,4 @@ The current direction is:
 
 ## Current Milestone
 
-The current milestone is **M0: Inception and Foundation**.
+The current milestone is **M1: Proof of Concept**.
