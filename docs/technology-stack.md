@@ -37,6 +37,14 @@ Status: **Confirmed**
 
 C# and .NET will be used across the application. The exact .NET version should be the current supported LTS version accepted by the development and hosting environments.
 
+The frontend currently targets .NET 8 and pins SDK `8.0.130` through its Flox
+environment and `global.json`. This is the reproducible development baseline
+for the current frontend project; final hosting and deployment compatibility
+remain open decisions.
+
+See the [development environment documentation](development-environment.md)
+for the host, WSL 2, and Flox conventions.
+
 ## Frontend
 
 ### Blazor WebAssembly
@@ -164,4 +172,3 @@ The final hosting decision can wait, but a reachable test deployment should be m
 - Same domain versus separate frontend and API domains
 - CORS configuration for local and deployed environments
 - Exact order, task, and time-entry data model
-

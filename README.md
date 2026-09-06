@@ -11,6 +11,7 @@ This repository contains project-wide documentation for OrdreFlow, the internal 
 ## Documentation Structure
 
 - [`docs/technology-stack.md`](docs/technology-stack.md): current technology decisions, alternatives, and open decisions
+- [`docs/development-environment.md`](docs/development-environment.md): Linux, WSL 2, Flox, and repository setup conventions
 - [`docs/task-planning-and-backlog.md`](docs/task-planning-and-backlog.md): issue creation, Project usage, backlog, and parent/child issue rules
 - [`docs/branching-and-prs.md`](docs/branching-and-prs.md): branch, pull-request, and parent integration branch rules
 - [`docs/api-contract.md`](docs/api-contract.md): draft M1 HTTP endpoints, DTOs, and API conventions
