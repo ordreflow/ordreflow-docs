@@ -1,0 +1,167 @@
+# M2: User Stories - Core Employee MVP 
+
+## Goal
+
+Deliver the first usable employee workflow for registering and reviewing time on assigned work.
+
+## Purpose of this document
+
+This document breaks down each item in the M2 scope into user stories with acceptance criteria, to be used for planning, estimation, and verifying the milestone's "Done When" criteria. Administration, reporting, export, approval, and locking are out of scope for M2 and will be covered in later milestones.
+
+## Scope covered
+
+- Basic authentication
+- Employee and admin/leader roles
+- Assigned orders or tasks
+- Mobile time registration
+- Backend validation and authorization
+- Editing time entries when allowed
+- Personal weekly overview
+- Weekly totals
+- Clear loading, error, and empty states
+- Basic handling of the selected time-entry mode
+
+---
+
+## User Stories
+
+### US-01: Log in to the system
+
+**Related scope item:** Basic authentication
+
+**User Story:** As an employee, I want to log in with my credentials, so that I can securely access my assigned work and time registrations.
+
+**Acceptance Criteria:**
+- Employee can log in using the agreed MVP authentication method.
+- Invalid credentials result in a clear, understandable error message.
+- A successful login issues a session/token used to authorize all later API calls.
+- Employee stays logged in until logout or token expiry, without needing to log in again on every screen.
+
+### US-02: Role-based access for employees vs. admin/leader
+
+**Related scope item:** Employee and admin/leader roles
+
+**User Story:** As a system, I want each user to have a defined role (employee or admin/leader), so that access to data and features can be limited to what that role is permitted to see and do.
+
+**Acceptance Criteria:**
+- Each user account is assigned exactly one role: employee or admin/leader.
+- A user with the employee role can only access their own assigned orders/tasks and their own time entries.
+- Role is checked on both the frontend (what is shown) and the backend (what is allowed).
+- Admin/leader-specific features beyond basic role assignment are out of scope for M2 and are planned for later milestones.
+
+### US-03: View assigned orders or tasks
+
+**Related scope item:** Assigned orders or tasks
+
+**User Story:** As an employee, I want to see the orders or tasks that have been assigned to me, so that I know what work I can register time against.
+
+**Acceptance Criteria:**
+- Employee sees a list of orders/tasks assigned specifically to them.
+- Each list item shows enough identifying information (name/number/description) to recognize the work.
+- Employee cannot see or select orders/tasks that are not assigned to them.
+- A clear empty state is shown when no orders/tasks are currently assigned.
+
+### US-04: Register time from a mobile phone
+
+**Related scope item:** Mobile time registration
+
+**User Story:** As an employee, I want to register time on my assigned work directly from my phone, so that I can log my hours conveniently while I am working.
+
+**Acceptance Criteria:**
+- Employee can select an assigned order/task and register time for it from a mobile-friendly interface.
+- The registration form matches the time-entry mode configured for that order/task.
+- A successful registration gives clear confirmation to the employee.
+- The new entry is immediately reflected in the personal weekly overview.
+
+### US-05: Support the selected time-entry mode
+
+**Related scope item:** Basic handling of the selected time-entry mode
+
+**User Story:** As an employee, I want the time registration screen to adapt to the time-entry mode selected for my task (for example clock in/out vs. manual hours entry), so that I record my time in the correct format.
+
+**Acceptance Criteria:**
+- The app reads the time-entry mode configured for the relevant order/task and shows the matching input fields.
+- Basic validation prevents obviously invalid entries for the selected mode (e.g. end time before start time, zero or negative duration).
+- If the mode is unclear or missing, the employee sees a clear message rather than a broken form.
+
+### US-06: Backend validates every time registration
+
+**Related scope item:** Backend validation and authorization
+
+**User Story:** As a system, I want the backend API to validate every time registration request, so that invalid or inconsistent data can never be stored, regardless of what the frontend allows.
+
+**Acceptance Criteria:**
+- The API rejects entries with missing required fields, invalid dates/times, or non-positive durations.
+- The API rejects overlapping or otherwise inconsistent entries according to the agreed business rules.
+- Validation errors are returned in a clear, structured format the frontend can display.
+- Validation rules are enforced even when a request is sent directly to the API, bypassing the app's UI.
+
+### US-07: Backend authorizes every request
+
+**Related scope item:** Backend validation and authorization
+
+**User Story:** As a system, I want the backend API to authorize every request based on the caller's identity and role, so that employees can only view or change data they are permitted to access.
+
+**Acceptance Criteria:**
+- Every API request is checked against the authenticated user's identity and role.
+- A request for another employee's data or time entries is rejected (401/403).
+- An attempt to register or edit time on an order/task not assigned to the employee is rejected.
+- Authorization is enforced independently of the frontend, so the rules hold even for direct API calls.
+
+### US-08: Edit an existing time entry
+
+**Related scope item:** Editing time entries when allowed
+
+**User Story:** As an employee, I want to edit a time entry I previously registered, so that I can correct mistakes while the entry is still open for editing.
+
+**Acceptance Criteria:**
+- Employee can edit an existing time entry as long as it meets the agreed MVP editing rules (e.g. not yet approved/locked).
+- Edits go through the same validation and authorization checks as new entries.
+- An entry that no longer qualifies for editing under the agreed rules cannot be changed, and the employee sees a clear explanation why.
+- The personal weekly overview and weekly total update immediately after an edit is saved.
+
+### US-09: Review a personal weekly overview
+
+**Related scope item:** Personal weekly overview
+
+**User Story:** As an employee, I want to see an overview of all the time I have registered during the week, so that I can review what I have logged and catch mistakes.
+
+**Acceptance Criteria:**
+- The overview lists all of the employee's time entries for the selected week, grouped by day and/or order/task.
+- Employee can navigate to the previous and next week.
+- The overview updates immediately after an entry is added or edited.
+- A clear empty state is shown for a week with no registrations.
+
+### US-10: See total hours for the week
+
+**Related scope item:** Weekly totals
+
+**User Story:** As an employee, I want to see my total registered hours for the week, so that I can quickly verify that my logged time looks correct before it goes further.
+
+**Acceptance Criteria:**
+- A total for the selected week is calculated from the employee's time entries and shown clearly in the weekly overview.
+- The total updates automatically whenever an entry is added, edited, or removed.
+- The total is easy to distinguish from the individual entries (e.g. shown as a summary line).
+
+### US-11: Clear loading, error, and empty states throughout the app
+
+**Related scope item:** Clear loading, error, and empty states
+
+**User Story:** As an employee, I want clear feedback whenever the app is loading data, something goes wrong, or there is nothing to show, so that I always understand what is happening.
+
+**Acceptance Criteria:**
+- A loading indicator is shown while assigned work, time entries, or the weekly overview are being fetched.
+- Errors (e.g. network failure, validation failure, server error) are shown with a clear, understandable message, and a retry option where relevant.
+- Empty states are shown when there is no assigned work or no time entries for the selected period, with a short explanation rather than a blank screen.
+- These states are applied consistently across every screen in the M2 scope.
+
+### US-12: Demonstrate the full core employee flow
+
+**Related scope item:** All M2 scope items (overall milestone goal)
+
+**User Story:** As the project team, we want the complete core employee flow — logging in, viewing assigned work, registering time, editing an entry, and reviewing the weekly overview and total — to work end-to-end, so that it can be demonstrated to VS Automatic.
+
+**Acceptance Criteria:**
+- An employee can complete the full flow (log in → view assigned orders/tasks → register time → review weekly overview and total → edit an entry if needed) without errors.
+- The API enforces validation and authorization throughout the flow, independent of the frontend.
+- The flow is stable enough to be demonstrated live to VS Automatic.
