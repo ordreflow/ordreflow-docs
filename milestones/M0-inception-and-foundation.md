@@ -24,7 +24,7 @@ The full MobilOrdre feature set, offline synchronization, advanced administratio
 - The POC acceptance criteria are written.
 - The frontend and backend responsibilities are clear.
 - The first API endpoints and data flow are understood.
-- The active frontend development environment can be recreated from committed Flox metadata.
+- The frontend and backend .NET development environments can be recreated from committed Flox metadata; database service setup remains a follow-up.
 
 ## Result
 

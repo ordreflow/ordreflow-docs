@@ -16,6 +16,7 @@ Deliver the first usable employee workflow for registering and reviewing time on
 - Weekly totals
 - Clear loading, error, and empty states
 - Basic handling of the selected time-entry mode
+- Domain/API contract for this Milestone
 
 Administration, reporting, export, approval, and locking can be added in later milestones.
 

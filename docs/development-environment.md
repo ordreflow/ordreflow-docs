@@ -29,6 +29,7 @@ The important files are:
 - `.flox/env/manifest.toml` — declared packages and environment settings
 - `.flox/env/manifest.lock` — resolved package versions and systems
 - `.flox/env.json` — local environment metadata
+- `.config/dotnet-tools.json` — repository-local .NET tools when required
 - `global.json` — .NET SDK selection when the repository uses .NET
 
 Flox runtime, cache, log, and telemetry files are local-only and are excluded
@@ -84,11 +85,24 @@ flox install <package>
 Do not edit `manifest.lock` manually. Review changes to both
 `.flox/env/manifest.toml` and `.flox/env/manifest.lock` before committing.
 
-## Backend and Services
+## Backend Environment
 
-The backend-specific Flox environment has not been established yet. Its setup
-must document the .NET SDK, PostgreSQL, Docker Compose, migrations, and any
-backend-only tools when that repository is configured.
+The backend has a minimal Flox environment for the current API and persistence
+code:
+
+- Target framework: `net8.0`
+- SDK: `8.0.130`
+- EF Core CLI: `8.0.13` as a repository-local .NET tool
+
+The EF Core CLI is kept in `.config/dotnet-tools.json` rather than the Flox
+manifest because the current Flox Catalog exposes newer major `dotnet-ef`
+versions, while the backend uses EF Core 8 packages. Restore it with
+`dotnet tool restore` after activating Flox.
+
+PostgreSQL and Docker Compose are not included in the backend manifest yet. No
+Compose file or finalized local database setup exists, so that layer will be
+added separately. The backend README records the database environment variables
+currently expected by the API.
 
 The frontend must not add backend services to its Flox manifest merely to make
 the frontend build. Frontend and backend setup should remain independently
@@ -96,9 +110,9 @@ usable while following the same host and WSL conventions.
 
 ## Troubleshooting
 
-If `dotnet --version` does not print `8.0.130`, activate the environment from
-the frontend repository root and run the command again. The committed
-`global.json` intentionally rejects a different SDK version.
+If `dotnet --version` does not print `8.0.130`, activate the relevant
+repository's environment from its root and run the command again. The
+committed `global.json` files intentionally reject a different SDK version.
 
 If Flox cannot find the environment, confirm that the command is being run from
 the repository root or pass the repository path with `-d`.
@@ -109,5 +123,6 @@ not in native PowerShell or WSL 1.
 ## Related Documentation
 
 - [Frontend README](https://github.com/ordreflow/ordreflow-frontend#running-locally)
+- [Backend README](https://github.com/ordreflow/ordreflow-backend#running-locally)
 - [Technology stack](technology-stack.md)
 - [Branching and pull requests](branching-and-prs.md)

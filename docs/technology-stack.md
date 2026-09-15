@@ -37,10 +37,10 @@ Status: **Confirmed**
 
 C# and .NET will be used across the application. The exact .NET version should be the current supported LTS version accepted by the development and hosting environments.
 
-The frontend currently targets .NET 8 and pins SDK `8.0.130` through its Flox
-environment and `global.json`. This is the reproducible development baseline
-for the current frontend project; final hosting and deployment compatibility
-remain open decisions.
+The frontend and backend currently target .NET 8 and pin SDK `8.0.130` through
+their Flox environments and `global.json` files. This is the reproducible
+development baseline for the current code projects; final hosting and
+deployment compatibility remain open decisions.
 
 See the [development environment documentation](development-environment.md)
 for the host, WSL 2, and Flox conventions.
