@@ -175,3 +175,56 @@ Pull request target: feature/m1-frontend-poc
 Final pull request:
 feature/m1-frontend-poc -> main
 ```
+# GitHub Branch Protection Rules — ordreflow
+
+Applied to all 3 repositories in the `ordreflow` organization:
+
+- `ordreflow-frontend`
+- `ordreflow-backend`
+- `ordreflow-docs`
+
+All repositories are now **public**, so these rules are actively enforced (rulesets are not enforced on private repos without a GitHub Team plan).
+
+## Ruleset: "Protect main"
+
+- **Enforcement status:** Active
+- **Target branch:** Default branch (`main`)
+- **Bypass list:** Empty — no roles, teams, or users can bypass this ruleset, including repo admins
+
+### Rules enabled
+
+| Rule | Setting | Effect |
+|---|---|---|
+| Require a pull request before merging | Required approvals: **1** | All changes to `main` must go through a pull request and get at least one approving review before merging |
+| Dismiss stale pull request approvals when new commits are pushed | On | If new commits are pushed after an approval, the approval is dismissed and a fresh review is required |
+| Require approval of the most recent reviewable push | On | The person who pushed the last set of changes cannot be the one who approves them — someone else must review |
+| Require conversation resolution before merging | On | All PR comment threads must be marked resolved before the PR can be merged |
+| Require an additional approval for unattributed Copilot pull requests | On | If Copilot opens a PR without a human co-author, it needs an extra approval |
+| Restrict deletions | On | Nobody can delete the `main` branch |
+| Block force pushes | On | Nobody can force-push to `main`, protecting commit history |
+
+### Rules left disabled (not needed yet)
+
+- Require linear history
+- Require merge queue
+- Require deployments to succeed
+- Require signed commits
+- Require status checks to pass (no CI configured yet — enable this once you add automated tests/build checks)
+- Require code scanning / code quality results
+- Restrict code coverage
+- Restrict creations / Restrict updates
+- Require review from specific teams / Code Owners
+
+## What this means in practice
+
+- Nobody (including admins) can push directly to `main`, all work must happen on a branch and go through a pull request.
+- Every pull request needs **at least 1 approval from someone other than the author** before it can be merged.
+- If someone pushes new commits to an already-approved PR, it needs to be re-approved.
+- `main` cannot be deleted or force-pushed to, so history is safe from accidental rewrites.
+- Since the bypass list is empty, this applies to everyone with write access — including the org owner.
+
+## Notes / things to revisit later
+
+- No status checks (CI/tests) are required yet since none are set up. Once you add a CI pipeline (e.g. GitHub Actions), come back and enable **"Require status checks to pass"** so PRs can't merge with failing builds.
+- With only 1 required approval, you need **at least 2 people** with write access to the repo for this to work smoothly (someone has to be able to approve who isn't the author).
+- If you ever want to allow emergency direct pushes (e.g. solo work), you would need to add yourself to the bypass list — currently no one is exempt.
