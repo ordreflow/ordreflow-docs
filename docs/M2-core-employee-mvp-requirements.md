@@ -25,10 +25,11 @@ dependencies such as authentication will be handled when the work is planned.
 | `FR-08` | As a leader/manager, I want to create orders or tasks, so that work can be assigned to employees. |
 | `FR-09` | As an employee, I want to view the orders or tasks assigned to me, so that I know what work I can register time against. |
 | `FR-10` | As an employee, I want to correct a time entry that is still open for changes, so that I can fix mistakes before it is finalized. |
-| `FR-11` | As an employee, I want to know why a time entry was returned, so that I can correct and resubmit it. |
-| `FR-12` | As an administrator, I want to assign roles to users, so that they receive the permissions needed for their work. |
-| `FR-13` | As an administrator, I want to assign employees to leaders/managers, so that leaders/managers can review the correct time entries. |
-| `FR-14` | As an employee, I want to view the total time for a selected week, so that I can check my total hours. |
+| `FR-11` | As a manager, I want to view a D3.js visualization of the 10 orders with the highest number of registered hours within a selected date range, so that I can identify which orders require the most time and gain an overview of how working hours are distributed across orders. |
+| `FR-12` | As an employee, I want to know why a time entry was returned, so that I can correct and resubmit it. |
+| `FR-13` | As an administrator, I want to assign roles to users, so that they receive the permissions needed for their work. |
+| `FR-14` | As an administrator, I want to assign employees to leaders/managers, so that leaders/managers can review the correct time entries. |
+| `FR-15` | As an employee, I want to view the total time for a selected week, so that I can check my total hours. |
 
 ## Non-Functional Requirements
 
