@@ -24,7 +24,7 @@ Manager:
 Admin:
 - Can set in which periods the users can edit the time registrations, before its locked.
 - Give permission to users to edit/add/delete timeregistration outside the period, in a given time (edit/delete only those who have not been approved) in a given time. (1,2,3,5,7 hours)
-
+- proper role feature, instead of having 3 roles, admin should be able to create roles, and define what each role should have access to do. so the top role will be the owner, which has access to do all
 
 Admin/Manager:
 - A proper time registrations page, where they can have a good overview over all time registrations, should be able to filter by project, task, employee, date, status and maybe other. when the manager/admin is in tasks/order/employee page and click time registrations it should send them to this page with the filters applied.
