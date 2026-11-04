@@ -55,6 +55,10 @@ need to be agreed before implementation.
 
 ![Proposed time-entry state machine](image.png)
 
+### Appendices
+
+- Allow employees to add appendices to time registrations. appendices could be things such as files, pictures, and also maybe list of items the company uses, so the company would give out an endpoint with items and frontend will call that endpoint to add those items
+
 ### Work planning and oversight
 
 - Let managers assign tasks to employees so they know what work to do.
