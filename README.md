@@ -18,6 +18,7 @@ This repository contains project-wide documentation for OrdreFlow, the internal 
 - [`milestones/M0-inception-and-foundation.md`](milestones/M0-inception-and-foundation.md): project and technical foundation
 - [`milestones/M1-proof-of-concept.md`](milestones/M1-proof-of-concept.md): first end-to-end working slice
 - [`milestones/M2-core-employee-mvp.md`](milestones/M2-core-employee-mvp.md): core mobile employee functionality
+- [`milestones/M3-PWA-with-Entra-ID.md`](milestones/M3-PWA-with-Entra-ID.md): PWA, offline registration, and Microsoft Entra ID
 
 Additional documentation such as the architecture diagram, domain glossary, and evaluation plan will be added as those decisions are made.
 
