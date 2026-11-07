@@ -15,10 +15,13 @@ This repository contains project-wide documentation for OrdreFlow, the internal 
 - [`docs/task-planning-and-backlog.md`](docs/task-planning-and-backlog.md): issue creation, Project usage, backlog, and parent/child issue rules
 - [`docs/branching-and-prs.md`](docs/branching-and-prs.md): branch, pull-request, and parent integration branch rules
 - [`docs/api-contract.md`](docs/api-contract.md): draft M1 HTTP endpoints, DTOs, and API conventions
+- [`docs/future-work-ideas.md`](docs/future-work-ideas.md): larger optional features for later planning
 - [`milestones/M0-inception-and-foundation.md`](milestones/M0-inception-and-foundation.md): project and technical foundation
 - [`milestones/M1-proof-of-concept.md`](milestones/M1-proof-of-concept.md): first end-to-end working slice
 - [`milestones/M2-core-employee-mvp.md`](milestones/M2-core-employee-mvp.md): core mobile employee functionality
-- [`milestones/M3-PWA-with-Entra-ID.md`](milestones/M3-PWA-with-Entra-ID.md): PWA, offline registration, and Microsoft Entra ID
+- [`milestones/M3-PWA.md`](milestones/M3-PWA.md): offline registration, work management, review, and export
+- [`milestones/M3-proposal.pdf`](milestones/M3-proposal.pdf): Danish M3 proposal with grouped scope and requirements
+- [`Requirements/M3-ordreflow-requirements.md`](Requirements/M3-ordreflow-requirements.md): prioritized functional and non-functional requirements for M3
 
 Additional documentation such as the architecture diagram, domain glossary, and evaluation plan will be added as those decisions are made.
 
