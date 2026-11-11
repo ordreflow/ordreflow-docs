@@ -16,6 +16,7 @@ This repository contains project-wide documentation for OrdreFlow, the internal 
 - [`docs/branching-and-prs.md`](docs/branching-and-prs.md): branch, pull-request, and parent integration branch rules
 - [`docs/api-contract.md`](docs/api-contract.md): draft M1 HTTP endpoints, DTOs, and API conventions
 - [`docs/future-work-ideas.md`](docs/future-work-ideas.md): larger optional features for later planning
+- [`docs/M3-definition-of-done.md`](docs/M3-definition-of-done.md): Definition of Done for M3 requirements, use cases, and the milestone
 - [`milestones/M0-inception-and-foundation.md`](milestones/M0-inception-and-foundation.md): project and technical foundation
 - [`milestones/M1-proof-of-concept.md`](milestones/M1-proof-of-concept.md): first end-to-end working slice
 - [`milestones/M2-core-employee-mvp.md`](milestones/M2-core-employee-mvp.md): core mobile employee functionality
