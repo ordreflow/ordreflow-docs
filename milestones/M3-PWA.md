@@ -10,7 +10,9 @@ right category reviewers, and maintain a traceable path from registration to
 completed payroll or invoice exports. Local sign-in remains available.
 
 The [M3 requirements](../Requirements/M3-ordreflow-requirements.md) contain the
-numbered functional and non-functional requirements. **Must** defines milestone
+numbered functional and non-functional requirements, and the
+[M3 Definition of Done](../docs/M3-definition-of-done.md) describes when each
+requirement and the milestone are complete. **Must** defines milestone
 completion; **Should** is planned when capacity permits; **Could** is stretch
 work that may move to a later milestone. Requirements `FR-01`–`FR-15` retain
 their earlier priority order; the new stories from `FR-16` are ordered by
