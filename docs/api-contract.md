@@ -319,6 +319,77 @@ PUT /api/timeEntries/{id}
 
 The exact update rules, locking behavior, and delete policy are not part of this draft.
 
+## Accounts, Job Titles and Departments (UC-05)
+
+These endpoints implement `UC-05` (`FR-05`, `FR-13`, `FR-14`, `SEC-01`). All of them require a signed-in user, and the backend checks every rule itself; hiding a button in the frontend is not a security boundary.
+
+### Access model
+
+| Concept | Meaning |
+| --- | --- |
+| Role (system access) | `Employee`, `Manager` or `Admin`. It is the only thing that grants access to protected operations. |
+| Job title | Free text such as `Electrician` or `Project lead`, at most 100 characters. It is displayed only and never grants system, department, or category access. |
+| Department | A named group of users. A user can be a member of several departments. |
+| Department manager | A department member marked as manager. Only users with the `Manager` or `Admin` role can be department managers. If the role is later changed to `Employee` or the user is deactivated, the department scope stops immediately. |
+| Managed employees | The active members of the departments a manager manages, excluding the manager. These are exactly the employees the manager may plan work for. |
+
+Deactivating a user (`DELETE /api/users/{id}`) keeps the account, its department memberships and its time entries. A deactivated user cannot sign in and is no longer part of any manager's managed employees.
+
+### Endpoints
+
+| Method and path | Who | Body | Success |
+| --- | --- | --- | --- |
+| `POST /api/users` | Admin | `name`, `email`, `password`, `role`, optional `managerId`, optional `jobTitle` | `204` |
+| `POST /api/users/{id}/jobTitle` | Admin | `{ "jobTitle": "Electrician" }`; empty or `null` clears the title | `204` |
+| `GET /api/departments` | Any role | – | `200` |
+| `POST /api/departments` | Admin | `{ "name": "Service" }` | `204` |
+| `PUT /api/departments/{id}` | Admin | `{ "name": "Field service" }` | `204` |
+| `PUT /api/departments/{id}/members/{userId}` | Admin | `{ "isManager": true }`; adds the user or changes the manager flag | `204` |
+| `DELETE /api/departments/{id}/members/{userId}` | Admin | – | `204` |
+| `GET /api/departments/managed-employees` | Manager or admin | – | `200` |
+
+User responses (`GET /api/users`, `GET /api/users/{id}`, `GET /api/users/me`) include `jobTitle`, which is `null` when no title is set.
+
+`GET /api/departments` returns every department to an admin. Other users receive only the departments they belong to; members are listed for departments the user manages, otherwise only the user is listed:
+
+```json
+{
+  "items": [
+    {
+      "id": "6c1f…",
+      "name": "Service",
+      "createdAt": "2026-11-17T13:25:14Z",
+      "isManagedByMe": true,
+      "members": [
+        {
+          "userId": "a41e…",
+          "name": "Morgan Manager",
+          "email": "morgan.manager@example.com",
+          "role": "Manager",
+          "status": "Active",
+          "jobTitle": "Project lead",
+          "isManager": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+`GET /api/departments/managed-employees` returns the same envelope and user objects as `GET /api/users`.
+
+### Errors
+
+| Status | Code | When |
+| --- | --- | --- |
+| `400` | `DepartmentNameRequired`, `DepartmentNameTooLong` | The name is blank or longer than 100 characters. |
+| `400` | `DepartmentNameTaken` | Another department already has the name. |
+| `400` | `DepartmentManagerAccessRequired` | The user to be made department manager has the `Employee` role. |
+| `400` | `DepartmentMemberInactive` | The user to be added is deactivated. |
+| `400` | `JobTitleTooLong` | The job title is longer than 100 characters. |
+| `403` | – | A manager or employee calls an admin-only endpoint, or an employee calls `managed-employees`. |
+| `404` | `DepartmentNotFound`, `UserNotFound`, `DepartmentMemberNotFound` | The department or user does not exist, or the user is not a member. |
+
 ## Current Implementation Gaps
 
 The current backend prototype differs from this draft in several areas:
