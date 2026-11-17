@@ -406,6 +406,62 @@ An employee:
 | `403` | – | The caller lacks the required grant. |
 | `404` | `EmployeeNotFound`, `DepartmentNotFound`, `DepartmentMembershipNotFound`, `DepartmentManagementNotFound` | The employee or department does not exist, or the link does not exist. |
 
+## Planning Work Under Categories (UC-08)
+
+These endpoints implement `UC-08` (`FR-08`, `SEC-08`). They require the `DepartmentManager` or `Administrator` grant, and the backend checks the department scope on every request.
+
+### Rules
+
+- A department manager creates categories and work only in departments they manage, and only while they hold the `DepartmentManager` grant. A title or a manager link without the grant gives no planning access. An administrator may plan in every department.
+- A category is owned by one department, which carries its cost. `internalOnly` limits selection to that department's members; otherwise everyone may select it.
+- Work is a `Project`, `Ticket` or `Task` (default). Work is either general, selectable within the category's visibility, or `assignmentOnly`, selectable only by its assignees, also before anyone has been assigned.
+- Work is created inside its category and cannot be moved to another category, and a category cannot move to another department (`SEC-08`).
+
+### Endpoints
+
+| Method and path | Body | Success |
+| --- | --- | --- |
+| `GET /api/categories/plannable` | – | `200` `{ "items": [...] }`: categories in the caller's managed departments (administrators: all), with their work |
+| `POST /api/departments/{id}/categories` | `name`, optional `internalOnly`, optional `description` | `201` `{ "id": "..." }` |
+| `POST /api/categories/{id}/work-items` | `name`, optional `description`, optional `kind`, optional `assignmentOnly` | `201` `{ "id": "..." }` |
+
+A plannable category:
+
+```json
+{
+  "id": "0b7d…",
+  "name": "Customers",
+  "description": null,
+  "departmentId": "6c1f…",
+  "departmentName": "Service",
+  "internalOnly": true,
+  "status": "Active",
+  "workItems": [
+    {
+      "id": "e2a9…",
+      "categoryId": "0b7d…",
+      "name": "Fix door",
+      "description": null,
+      "kind": "Ticket",
+      "assignmentOnly": true,
+      "status": "Active",
+      "createdAt": "2026-11-17T15:02:11Z"
+    }
+  ]
+}
+```
+
+### Errors
+
+| Status | Code | When |
+| --- | --- | --- |
+| `400` | `CatagoryNameRequired`, `CatagoryNameTooLong`, `TaskNameRequired`, `TaskNameTooLong` | The name is blank or longer than 200 characters. |
+| `400` | `DescriptionTooLong` | The description is longer than 1,000 characters. |
+| `400` | `InvalidWorkItemKind` | The kind is not `Project`, `Ticket` or `Task`. |
+| `400` | `CatagoryClosed` | The category is closed. |
+| `403` | `WorkPlanningForbidden` | The caller does not manage the owning department and is not an administrator. |
+| `404` | `DepartmentNotFound`, `CategoryNotFound` | The department or category does not exist. |
+
 ## Current Implementation Gaps
 
 The current backend prototype differs from this draft in several areas:
