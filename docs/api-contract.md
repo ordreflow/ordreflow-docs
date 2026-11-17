@@ -319,38 +319,57 @@ PUT /api/timeEntries/{id}
 
 The exact update rules, locking behavior, and delete policy are not part of this draft.
 
-## Accounts, Job Titles and Departments (UC-05)
+## Accounts, System Access and Departments (UC-05)
 
-These endpoints implement `UC-05` (`FR-05`, `FR-13`, `FR-14`, `SEC-01`). All of them require a signed-in user, and the backend checks every rule itself; hiding a button in the frontend is not a security boundary.
+These endpoints implement `UC-05` (`FR-05`, `FR-13`, `FR-14`, `SEC-01`) on the M3 `Employee` and `Department` model. All of them require a signed-in employee, and the backend checks every rule itself; hiding a button in the frontend is not a security boundary.
 
 ### Access model
 
 | Concept | Meaning |
 | --- | --- |
-| Role (system access) | `Employee`, `Manager` or `Admin`. It is the only thing that grants access to protected operations. |
-| Job title | Free text such as `Electrician` or `Project lead`, at most 100 characters. It is displayed only and never grants system, department, or category access. |
-| Department | A named group of users. A user can be a member of several departments. |
-| Department manager | A department member marked as manager. Only users with the `Manager` or `Admin` role can be department managers. If the role is later changed to `Employee` or the user is deactivated, the department scope stops immediately. |
-| Managed employees | The active members of the departments a manager manages, excluding the manager. These are exactly the employees the manager may plan work for. |
+| System access | Grants on the employee: `Employee`, `DepartmentManager`, `CatagoryReviewer`, `Payroll`, `Administrator`. They are the only thing that grants access. Every account has `Employee`; without it the account cannot sign in. Grants are read on every request, so a change also applies to tokens that were already issued. |
+| Title | Optional displayed text such as `Electrician`, at most 100 characters. It never grants system, department, or category access. |
+| Department | A named group of employees. An employee can be a member of several departments. |
+| Department manager | An employee linked as manager of a department. The link requires the `DepartmentManager` grant. If the grant is removed or the employee is deactivated, the department scope ends at once; the link is kept. |
+| Managed employees | The active members of the departments the caller manages, excluding the caller. These are exactly the employees the manager may plan work for. |
 
-Deactivating a user (`DELETE /api/users/{id}`) keeps the account, its department memberships and its time entries. A deactivated user cannot sign in and is no longer part of any manager's managed employees.
+Deactivating an employee keeps the account, department links and time entries. A deactivated employee cannot sign in (`403 UserInactive`) and is no longer part of any manager's managed employees. An administrator cannot deactivate themselves or remove their own `Administrator` or `Employee` access.
 
 ### Endpoints
 
 | Method and path | Who | Body | Success |
 | --- | --- | --- | --- |
-| `POST /api/users` | Admin | `name`, `email`, `password`, `role`, optional `managerId`, optional `jobTitle` | `204` |
-| `POST /api/users/{id}/jobTitle` | Admin | `{ "jobTitle": "Electrician" }`; empty or `null` clears the title | `204` |
-| `GET /api/departments` | Any role | – | `200` |
-| `POST /api/departments` | Admin | `{ "name": "Service" }` | `204` |
-| `PUT /api/departments/{id}` | Admin | `{ "name": "Field service" }` | `204` |
-| `PUT /api/departments/{id}/members/{userId}` | Admin | `{ "isManager": true }`; adds the user or changes the manager flag | `204` |
-| `DELETE /api/departments/{id}/members/{userId}` | Admin | – | `204` |
-| `GET /api/departments/managed-employees` | Manager or admin | – | `200` |
+| `GET /api/employees/me` | Employee | – | `200` own profile |
+| `GET /api/employees` | Administrator | – | `200` `{ "items": [...] }` |
+| `GET /api/employees/{id}` | Administrator | – | `200` |
+| `POST /api/employees` | Administrator | `name`, `email`, `password`, optional `title`, optional `permissions` (for example `["DepartmentManager"]`) | `201` `{ "id": "..." }` |
+| `PUT /api/employees/{id}` | Administrator | `name`, `title` (empty clears it) | `204` |
+| `PUT /api/employees/{id}/permissions` | Administrator | `{ "permissions": ["Employee", "Payroll"] }`; replaces the grants | `204` |
+| `POST /api/employees/{id}/deactivate` | Administrator | – | `204` |
+| `POST /api/employees/{id}/activate` | Administrator | – | `204` |
+| `GET /api/departments` | Employee | – | `200` `{ "items": [...] }` |
+| `POST /api/departments` | Administrator | `{ "name": "Service" }` | `201` `{ "id": "..." }` |
+| `PUT /api/departments/{id}/employees/{employeeId}` | Administrator | – | `204`; adding an existing member is harmless |
+| `DELETE /api/departments/{id}/employees/{employeeId}` | Administrator | – | `204` |
+| `PUT /api/departments/{id}/managers/{employeeId}` | Administrator | – | `204` |
+| `DELETE /api/departments/{id}/managers/{employeeId}` | Administrator | – | `204` |
+| `GET /api/departments/managed-employees` | DepartmentManager | – | `200` `{ "items": [...] }` |
 
-User responses (`GET /api/users`, `GET /api/users/{id}`, `GET /api/users/me`) include `jobTitle`, which is `null` when no title is set.
+An employee:
 
-`GET /api/departments` returns every department to an admin. Other users receive only the departments they belong to; members are listed for departments the user manages, otherwise only the user is listed:
+```json
+{
+  "id": "a41e…",
+  "name": "Morgan Manager",
+  "email": "morgan.manager@example.com",
+  "title": "Project lead",
+  "status": "Active",
+  "createdAt": "2026-11-17T13:25:14Z",
+  "permissions": ["DepartmentManager", "Employee"]
+}
+```
+
+`GET /api/departments` returns every department to an administrator. Other employees receive only the departments they belong to or manage. Members are listed for administrators and for the department's managers; other members only see themselves:
 
 ```json
 {
@@ -358,37 +377,34 @@ User responses (`GET /api/users`, `GET /api/users/{id}`, `GET /api/users/me`) in
     {
       "id": "6c1f…",
       "name": "Service",
-      "createdAt": "2026-11-17T13:25:14Z",
-      "isManagedByMe": true,
+      "managedByMe": true,
+      "managers": [
+        { "employeeId": "a41e…", "name": "Morgan Manager", "email": "morgan.manager@example.com", "title": "Project lead", "status": "Active" }
+      ],
       "members": [
-        {
-          "userId": "a41e…",
-          "name": "Morgan Manager",
-          "email": "morgan.manager@example.com",
-          "role": "Manager",
-          "status": "Active",
-          "jobTitle": "Project lead",
-          "isManager": true
-        }
+        { "employeeId": "5e53…", "name": "Casey Employee", "email": "casey.employee@example.com", "title": "Electrician", "status": "Active" }
       ]
     }
   ]
 }
 ```
 
-`GET /api/departments/managed-employees` returns the same envelope and user objects as `GET /api/users`.
+`GET /api/departments/managed-employees` returns the same person objects as `members`.
 
 ### Errors
 
 | Status | Code | When |
 | --- | --- | --- |
-| `400` | `DepartmentNameRequired`, `DepartmentNameTooLong` | The name is blank or longer than 100 characters. |
-| `400` | `DepartmentNameTaken` | Another department already has the name. |
-| `400` | `DepartmentManagerAccessRequired` | The user to be made department manager has the `Employee` role. |
-| `400` | `DepartmentMemberInactive` | The user to be added is deactivated. |
-| `400` | `JobTitleTooLong` | The job title is longer than 100 characters. |
-| `403` | – | A manager or employee calls an admin-only endpoint, or an employee calls `managed-employees`. |
-| `404` | `DepartmentNotFound`, `UserNotFound`, `DepartmentMemberNotFound` | The department or user does not exist, or the user is not a member. |
+| `400` | `EmailInvalid`, `EmailAlreadyInUse`, `PasswordRequired`, Identity password codes | The account details are invalid or the email is taken. |
+| `400` | `InvalidSystemPermission` | A permission name is unknown. |
+| `400` | `TitleTooLong` | The title is longer than 100 characters. |
+| `400` | `DepartmentNameRequired`, `DepartmentNameTooLong`, `DepartmentNameTaken` | The department name is blank, longer than 200 characters, or in use. |
+| `400` | `DepartmentManagerAccessRequired` | The employee to be made manager lacks the `DepartmentManager` grant. |
+| `400` | `EmployeeInactive` | The employee to be placed in a department is deactivated. |
+| `400` | `EmployeeAlreadyDeactivated`, `EmployeeAlreadyActive` | The status already has the requested value. |
+| `403` | `SelfDeactivationForbidden`, `SelfAdministrationRemovalForbidden` | An administrator tries to lock themselves out. |
+| `403` | – | The caller lacks the required grant. |
+| `404` | `EmployeeNotFound`, `DepartmentNotFound`, `DepartmentMembershipNotFound`, `DepartmentManagementNotFound` | The employee or department does not exist, or the link does not exist. |
 
 ## Current Implementation Gaps
 
