@@ -107,6 +107,59 @@ An order summary is the minimum information needed to select an order on a phone
 
 ## Endpoints
 
+### Sign in
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+```
+
+Local sign-in for `UC-06` (`FR-06`, `SEC-01`, `SEC-04`). This is the only endpoint, besides `GET /api/health`, that does not require a token.
+
+Request body:
+
+```json
+{
+  "email": "employee@example.com",
+  "password": "The user's password"
+}
+```
+
+Successful response:
+
+```http
+200 OK
+Content-Type: application/json
+```
+
+```json
+{
+  "accessToken": "eyJhbGciOi...",
+  "tokenType": "Bearer",
+  "expiresAt": "2026-11-17T13:00:00Z"
+}
+```
+
+The frontend sends the token as `Authorization: Bearer <accessToken>` on every other request. Signing out is done by the client discarding the token; the token stops working at `expiresAt`.
+
+Failures:
+
+| Status | Code | When |
+| --- | --- | --- |
+| `401` | `InvalidCredentials` | The email or password is wrong, the account doesn't exist, or the account is locked. The same answer is used for all three, so it does not reveal whether an account exists or is locked. |
+| `403` | `UserInactive` | The email and password are correct, but the user has been deactivated. It is only returned after a correct password. |
+| `429` | `TooManyLoginAttempts` | Too many sign-in attempts from the same client IP. The `Retry-After` header gives the number of seconds to wait. |
+
+Security rules:
+
+- Passwords are stored only as salted, non-reversible hashes (ASP.NET Core Identity).
+- An account is locked for 15 minutes after 5 wrong passwords in a row. While locked, even the correct password returns `401 InvalidCredentials`.
+- Sign-in is rate-limited per client IP: 20 attempts per minute by default, counting successful and failed attempts. It can be changed with the `LoginRateLimit__PermitLimit` and `LoginRateLimit__Window` environment variables. Colleagues behind one public IP share the limit, so it is set to slow down attacks rather than individual users.
+- The client IP and scheme are read from `X-Forwarded-For` and `X-Forwarded-Proto`, because the API runs behind the frontend's nginx and, in test, Caddy.
+- Test and production are only reachable over HTTPS (Caddy). Outside development the API sends `Strict-Transport-Security` on HTTPS responses.
+- Passwords and tokens are never written to logs.
+- There is no self-service password recovery yet, so no endpoint can reveal credentials or whether an account exists.
+
 ### List available orders
 
 ```http
@@ -248,10 +301,11 @@ Expected status codes for the POC are:
 | `200` | Successful retrieval |
 | `201` | Time entry created |
 | `400` | Invalid request or validation failure |
+| `401` | Missing, invalid or expired token, or failed sign-in (see [Sign in](#sign-in)) |
+| `403` | Signed in, but not allowed to do this, or the user is deactivated |
 | `404` | Requested order or resource does not exist |
+| `429` | Too many sign-in attempts; wait for the `Retry-After` seconds |
 | `500` | Unexpected server failure; implementation details must not be exposed |
-
-Authentication-related `401 Unauthorized` and `403 Forbidden` responses will be added when the M2 authentication and authorization behavior is agreed.
 
 ## M2 Evolution
 
