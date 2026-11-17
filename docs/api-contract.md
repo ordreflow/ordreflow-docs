@@ -462,6 +462,59 @@ A plannable category:
 | `403` | `WorkPlanningForbidden` | The caller does not manage the owning department and is not an administrator. |
 | `404` | `DepartmentNotFound`, `CategoryNotFound` | The department or category does not exist. |
 
+## Finding Work (UC-09)
+
+These endpoints implement `UC-09` (`FR-09`, `FR-21`, `FR-32`, `PERF-01`, `SEC-02`, `USE-04`). They require the `Employee` grant.
+
+### Rules
+
+A work item is listed for the caller when all of these hold. They are the same rules that apply when time is registered, so the list never shows work the caller cannot use:
+
+1. The category and the work item are active.
+2. An internal-only category is owned by a department the caller is a member of.
+3. The work is general (not assignment-only and without assignments), or it is assigned to the caller.
+
+- **Assigned to me** (`assignedToMe=true`) narrows the same list to work assigned to the caller. Turning it off shows general work again.
+- `search` narrows the list by work or category name. Neither filter can reveal work outside the list.
+- Hidden work cannot be found in lists, search or by direct URL. A hidden work item returns the same `404` as one that does not exist.
+- The category and department are included for context only. Other assignees and hidden work in the same category are never included.
+
+### Endpoints
+
+| Method and path | Success |
+| --- | --- |
+| `GET /api/work-items?assignedToMe=false&search=` | `200` `{ "items": [...] }`, assigned work first |
+| `GET /api/work-items/{id}` | `200`, or `404 WorkItemNotFound` |
+
+A work item:
+
+```json
+{
+  "id": "e2a9…",
+  "name": "Fix door",
+  "description": null,
+  "kind": "Ticket",
+  "assignmentOnly": true,
+  "assignedToMe": true,
+  "expectedHours": 7.5,
+  "expectedDeadline": "2026-12-01",
+  "categoryId": "0b7d…",
+  "categoryName": "Customers",
+  "departmentId": "6c1f…",
+  "departmentName": "Service"
+}
+```
+
+`expectedHours` and `expectedDeadline` come from the caller's own assignment and are `null` for general work.
+
+### Errors
+
+| Status | Code | When |
+| --- | --- | --- |
+| `400` | `SearchTooLong` | The search text is longer than 200 characters. |
+| `403` | `AccessForbidden` | The caller is deactivated or lacks the `Employee` grant. |
+| `404` | `WorkItemNotFound` | The work item does not exist or is hidden from the caller. |
+
 ## Current Implementation Gaps
 
 The current backend prototype differs from this draft in several areas:
